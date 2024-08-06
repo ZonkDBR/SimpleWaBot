@@ -1,7 +1,7 @@
 const { Client, LocalAuth }   = require('whatsapp-web.js');
-const qrcode                            = require('qrcode-terminal');
-const fs                                = require('fs');
-const path                              = require('path');
+const qrcode                  = require('qrcode-terminal');
+const fs                      = require('fs');
+const path                    = require('path');
 
 const client = new Client({ authStrategy: new LocalAuth() });
 
@@ -25,7 +25,7 @@ const saveActiveGroups = (activeGroups) => {
     }
 };
 
-const activeGroups      = loadActiveGroups();
+const activeGroups = loadActiveGroups();
 
 client.on('qr', (qr) => {
     qrcode.generate(qr, { small: true });
@@ -140,6 +140,21 @@ client.on("message_create", async (message) => {
                     const participants = await chat.participants;
                     const members = participants.filter(participant => !participant.isAdmin);
                     await tagMembers(members);
+                    await message.react("✅");
+                } else {
+                    await message.reply("Pffft");
+                    await message.react("🤡");
+                }
+            } else {
+                await message.reply("Hanya bisa digunakan di group!");
+                await message.react("❌");
+            }
+            break;
+        case ".help":
+            if (activeGroups.has(chatID) && chat.isGroup) {
+                if (await isAdmin()) {
+                    await message.react("⌛");
+                    await message.reply("1. .on\n2. .off\n3. .tagall\n4. .tagadmin\n5. .tagmember");
                     await message.react("✅");
                 } else {
                     await message.reply("Pffft");
