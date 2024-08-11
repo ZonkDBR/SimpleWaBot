@@ -8,6 +8,7 @@ ini adalah project bot whatsapp simple yang saya buat dan tujukan agar memudahka
 - Mention semua member group
 - Mention semua admin group
 - Mention semua orang di dalam group
+- Help command yang memberikan semua list command
 
 ## Instalasi
 
