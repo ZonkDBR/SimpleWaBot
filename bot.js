@@ -4,7 +4,7 @@ const fs = require("fs");
 const path = require("path");
 
 const client = new Client({ authStrategy: new LocalAuth() });
-
+let spamInterval;
 const activeGroupsFile = path.resolve(__dirname, "activeGroups.json");
 let activeGroups = new Set(
   JSON.parse(fs.readFileSync(activeGroupsFile, "utf8"))
@@ -164,10 +164,55 @@ client.on("message_create", async (message) => {
         }
       }
       break;
+    case message.body.toLocaleLowerCase().includes(".spam"):
+      await message.react("⌛");
+      if (spamInterval) {
+        clearInterval(spamInterval);
+      }
+      if (message.hasQuotedMsg) {
+        const quotedMsg = await message.getQuotedMessage();
+        if (quotedMsg.hasMedia && quotedMsg.type === "sticker") {
+          const media = await quotedMsg.downloadMedia();
+          spamInterval = setInterval(async () => {
+            await chat.sendMessage(media, { sendMediaAsSticker: true });
+          }, 1000);
+          await message.react("✅");
+        } else if (quotedMsg.body) {
+          const spamText = quotedMsg.body;
+          spamInterval = setInterval(async () => {
+            await chat.sendMessage(spamText);
+          }, 1000);
+          await message.react("✅");
+        } else {
+          await message.reply("Tidak ada gambar atau sticker.");
+          await message.react("❌");
+        }
+      } else {
+        const spamText = message.body.slice(6).trim();
+        if (spamText) {
+          spamInterval = setInterval(async () => {
+            await chat.sendMessage(spamText);
+          }, 1000);
+          await message.react("✅");
+        } else {
+          await message.reply("Tidak ada teks.");
+          await message.react("❌");
+        }
+      }
+      break;
+    case message.body.toLocaleLowerCase().includes(".stop"):
+      if (spamInterval) {
+        clearInterval(spamInterval);
+        await message.react("✅");
+      } else {
+        await message.reply("Tidak ada spam yang aktif.");
+        await message.react("❌");
+      }
+      break;
     case message.body.toLocaleLowerCase().startsWith(".help"):
       await message.react("⌛");
       await message.reply(
-        "Selalu Awali dengan .\n1. on\n2. off\n3. tagall\n4. tagadmin\n5. tagmember\n6. sticker\n7. help"
+        "Selalu Awali dengan .\n1. On\n2. Off\n3. Tagall\n4. Tagadmin\n5. Tagmember\n6. Sticker\n7. Spam\n8. Stop\n9. Help"
       );
       await message.react("✅");
       break;

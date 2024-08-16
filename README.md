@@ -9,6 +9,7 @@ ini adalah project bot whatsapp simple yang saya buat dan tujukan agar memudahka
 - Mention semua admin group
 - Mention semua orang di dalam group
 - Membuat stiker dari gambar
+- Melakukan spam sticker ataupun teks
 - Help command yang memberikan semua list command
 
 ## Instalasi
